@@ -75,8 +75,8 @@ export class SandGrid {
                     changed = true;
                     continue;
                 }
-                grain.color = 0xffffff;
-                grain.isActive = false;
+/*                 grain.color = 0xffffff;
+                grain.isActive = false; */
             }
         }
         return changed;

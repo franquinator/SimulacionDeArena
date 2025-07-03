@@ -24,6 +24,8 @@ export class SandApp {
         this.brushSize = 1;
         this.tool = 'brush'; // 'brush' o 'eraser'
         this.needsRedraw = true; // Flag para optimización
+        this.drawGrid = [];
+
         this.initPixi();
         this.initUI();
     }
@@ -33,8 +35,32 @@ export class SandApp {
         await this.app.init({ width: this.width, height: this.height });
         window.__PIXI_APP__ = this.app;
         document.body.appendChild(this.app.canvas);
-        this.graphics = new PIXI.Graphics();
-        this.app.stage.addChild(this.graphics);
+/*         this.graphics = new PIXI.Graphics();
+        this.app.stage.addChild(this.graphics); */
+
+        for (let y = 0; y < 200; y++) {
+            this.drawGrid[y] = [];
+            for (let x = 0; x < 200; x++) {
+                const pixel = new PIXI.Graphics();
+                pixel.beginFill(0xffffff);
+                pixel.drawRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize);
+                pixel.endFill();
+                pixel.tint = 0x000000;
+                this.app.stage.addChild(pixel);
+                this.drawGrid[y][x] = pixel;
+            }
+        }
+
+/*         // Agregar un sprite al lado derecho del canvas
+        let textura = await PIXI.Assets.load('https://r-charts.com/es/miscelanea/procesamiento-imagenes-magick_files/figure-html/color-fondo-imagen-r.png');
+        textura.scaleMode = 'nearest';
+        const sprite = new PIXI.Sprite(textura);
+        sprite.x = 0; // 20px a la derecha del canvas
+        sprite.y = 0;
+        sprite.width = 500;
+        sprite.height = 500;
+        this.app.stage.addChild(sprite); */
+
         this.app.ticker.add(() => {
             const userChanged = this.handleInput();
             const physicsChanged = this.sandGrid.updatePhysics();
@@ -191,14 +217,20 @@ export class SandApp {
     }
 
     draw() {
-        this.graphics.clear();
+        //this.graphics.clear();
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
+                //console.log("pixel", x, y);
+                
                 const grain = this.sandGrid.getGrain(x, y);
                 if (grain) {
-                    this.graphics.beginFill(grain.color);
+                    this.drawGrid[y][x].tint = grain.color;
+                    /* this.graphics.beginFill(grain.color);
                     this.graphics.drawRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize);
-                    this.graphics.endFill();
+                    this.graphics.endFill(); */
+                }
+                else{
+                    this.drawGrid[y][x].tint ="0x000000";
                 }
             }
         }
